@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios, { AxiosError } from "axios";
 import { RootState } from "../../store";
-import { clearCart } from "../cart/cartSlice"; // Importamos la acción clearCart
+import { clearCart } from "../cart/cartSlice"; 
 
 // Definición de la interfaz User
 interface User {
@@ -80,7 +80,6 @@ export const fetchProductOrders = createAsyncThunk(
   "productOrders/fetchProductOrders",
   async (_, { rejectWithValue }) => {
     try {
-      console.log("Iniciando solicitud para obtener órdenes de productos...");
 
       const response = await axios.get(
         "https://backendiaecommerce.onrender.com/api/productOrders",
@@ -92,24 +91,23 @@ export const fetchProductOrders = createAsyncThunk(
         }
       );
 
-      console.log("Respuesta recibida de la API:", response.data);
 
-      const mappedOrders = response.data.map((order: any) => {
-        const paymentProof = order.payment_proof?.includes("/uploads/")
-          ? order.payment_proof.replace("/uploads/", "")
-          : order.payment_proof;
+      const mappedOrders = response.data.map((order: ProductOrder) => {
+        const paymentProof = order.payment_proof_url?.includes("/uploads/")
+          ? order.payment_proof_url.replace("/uploads/", "")
+          : order.payment_proof_url;
 
         return {
           ...order,
-          user: order.user_name
+          user: order.user
             ? {
-                id: order.user_id,
-                nombre: order.user_name || "Nombre no disponible",
-                email: order.user_email || "Email no disponible",
+                id: order.user.id,
+                nombre: order.user.nombre || "Nombre no disponible",
+                email: order.user.email || "Email no disponible",
               }
             : null,
           products: Array.isArray(order.products)
-            ? order.products.map((product: any) => ({
+            ? order.products.map((product: Product) => ({
                 ...product,
                 quantity:
                   product?.OrderProducts?.quantity || product.quantity || 0,
@@ -121,7 +119,6 @@ export const fetchProductOrders = createAsyncThunk(
         };
       });
 
-      console.log("Órdenes mapeadas:", mappedOrders);
       return mappedOrders;
     } catch (error: unknown) {
       console.error("Error en la solicitud de órdenes:", error);
@@ -139,7 +136,6 @@ export const fetchProductOrders = createAsyncThunk(
     }
   }
 );
-
 // Crear una nueva orden de compra de productos con comprobante de pago
 export const createProductOrder = createAsyncThunk(
   "productOrders/createProductOrder",
@@ -156,8 +152,8 @@ export const createProductOrder = createAsyncThunk(
         }
       );
 
-      dispatch(clearCart()); // Limpiar carrito tras la creación exitosa de la orden con comprobante
-      return response.data.order;
+      dispatch(clearCart());
+      return response.data.order as ProductOrder;
     } catch (error: unknown) {
       return rejectWithValue(
         isAxiosError(error) ? error.message : "Error desconocido"
@@ -182,7 +178,7 @@ export const createProductOrderMercadoPago = createAsyncThunk(
         }
       );
 
-      dispatch(clearCart()); // Limpiar carrito tras la creación exitosa de la orden con Mercado Pago
+      dispatch(clearCart()); 
       return response.data.init_point;
     } catch (error: unknown) {
       console.error("Error en la solicitud de Mercado Pago:", error);

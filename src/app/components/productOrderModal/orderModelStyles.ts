@@ -17,7 +17,41 @@ export const StyledModalContainer = styled.div`
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
   }
 `;
+export const ProductDetailsContainer = styled.div`
+  padding: 10px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco claro */
+  margin-bottom: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); /* Sombra suave */
+  display: flex;
+  flex-direction: column;
+`;
 
+export const ProductName = styled.div`
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #6e5e4e; /* Marrón claro */
+  margin-bottom: 5px;
+`;
+
+export const ProductAttributes = styled.div`
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+  color: #6e5e4e; /* Marrón claro */
+`;
+
+export const ProductAttribute = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 3px;
+
+  span {
+    font-weight: bold;
+    margin-right: 5px;
+    color: #6e5e4e; /* Marrón claro */
+  }
+`;
 export const ModalHeader = styled.h2`
   margin-bottom: 1.5rem;
   color: #ffd700;

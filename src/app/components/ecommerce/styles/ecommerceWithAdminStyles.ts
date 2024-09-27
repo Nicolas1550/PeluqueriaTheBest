@@ -18,6 +18,51 @@ export const AdminButton = styled.button`
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
   }
 `;
+// Select estilizado con wrapper para la flecha
+export const SelectWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+
+  &::after {
+    content: "▼";
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 14px;
+    color: #333;
+  }
+`;
+export const StyledSelect = styled.select`
+  width: 100%;
+  padding: 8px 40px 8px 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  color: #333;
+  background-color: #f9f9f9;
+  appearance: none;
+  outline: none;
+  transition: border-color 0.3s ease;
+
+  &:hover {
+    border-color: #888;
+  }
+
+  &:focus {
+    border-color: #f4c2c2;
+    box-shadow: 0 0 5px rgba(244, 194, 194, 0.5);
+  }
+`;
+
+export const StyledOption = styled.option`
+  color: #333;
+  background-color: #f9f9f9;
+  font-size: 16px;
+`;
 
 export const ModalContainer = styled.div`
   padding: 2.5rem;

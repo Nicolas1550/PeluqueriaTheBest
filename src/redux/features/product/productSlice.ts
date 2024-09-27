@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { RootState } from "../../store";
 
-// Definición de la interfaz Product
 // Interfaz Product
 export interface Product {
   id: number;
@@ -11,16 +10,18 @@ export interface Product {
   imageFileName?: string;
   quantity: number;
   description?: string;
+  brand: string; 
+  color: string; 
+  category: string; 
   createdAt: string;
   updatedAt: string;
-  isFeatured?: boolean; // Hacer que sea opcional
+  isFeatured?: boolean; 
 }
-
 
 // Estado inicial para los productos
 interface ProductState {
   products: Product[];
-  featuredProducts: Product[]; 
+  featuredProducts: Product[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
@@ -35,25 +36,31 @@ const initialState: ProductState = {
 // Thunks
 
 // Obtener todos los productos
-export const fetchProducts = createAsyncThunk("products/fetchProducts", async () => {
-  const response = await axios.get("https://backendiaecommerce.onrender.com/api/products", {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-  });
-  return response.data;
-});
+export const fetchProducts = createAsyncThunk(
+  "products/fetchProducts",
+  async () => {
+    const response = await axios.get("https://backendiaecommerce.onrender.com/api/products", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    return response.data;
+  }
+);
 
 // Obtener productos destacados
 export const fetchFeaturedProducts = createAsyncThunk(
   "products/fetchFeaturedProducts",
   async () => {
-    const response = await axios.get("https://backendiaecommerce.onrender.com/api/products/featured", {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await axios.get(
+      "https://backendiaecommerce.onrender.com/api/products/featured",
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return response.data;
   }
 );
@@ -98,12 +105,16 @@ export const unfeatureProduct = createAsyncThunk(
 export const addProduct = createAsyncThunk(
   "products/addProduct",
   async (newProduct: FormData) => {
-    const response = await axios.post("https://backendiaecommerce.onrender.com/api/products/add", newProduct, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
+    const response = await axios.post(
+      "https://backendiaecommerce.onrender.com/api/products/add",
+      newProduct,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
     return response.data.product;
   }
 );
@@ -127,15 +138,18 @@ export const updateProduct = createAsyncThunk(
 );
 
 // Eliminar un producto
-export const deleteProduct = createAsyncThunk("products/deleteProduct", async (id: number) => {
-  await axios.delete(`https://backendiaecommerce.onrender.com/api/products/delete/${id}`, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-  });
-  return id;
-});
+export const deleteProduct = createAsyncThunk(
+  "products/deleteProduct",
+  async (id: number) => {
+    await axios.delete(`https://backendiaecommerce.onrender.com/api/products/delete/${id}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    return id;
+  }
+);
 
 // Slice para manejar el estado de productos
 const productSlice = createSlice({
@@ -162,23 +176,32 @@ const productSlice = createSlice({
         state.products.push(action.payload);
       })
       .addCase(updateProduct.fulfilled, (state, action) => {
-        const index = state.products.findIndex((product) => product.id === action.payload.id);
+        const index = state.products.findIndex(
+          (product) => product.id === action.payload.id
+        );
         if (index !== -1) {
-          state.products[index] = action.payload;
+          state.products[index] = action.payload; 
         }
       })
+
       .addCase(deleteProduct.fulfilled, (state, action) => {
-        state.products = state.products.filter((product) => product.id !== action.payload);
+        state.products = state.products.filter(
+          (product) => product.id !== action.payload
+        );
       })
       .addCase(featureProduct.fulfilled, (state, action) => {
-        const index = state.products.findIndex((product) => product.id === action.payload.id);
+        const index = state.products.findIndex(
+          (product) => product.id === action.payload.id
+        );
         if (index !== -1) {
           state.products[index] = action.payload;
         }
         state.featuredProducts.push(action.payload);
       })
       .addCase(unfeatureProduct.fulfilled, (state, action) => {
-        const index = state.products.findIndex((product) => product.id === action.payload.id);
+        const index = state.products.findIndex(
+          (product) => product.id === action.payload.id
+        );
         if (index !== -1) {
           state.products[index] = action.payload;
         }
@@ -194,6 +217,7 @@ export default productSlice.reducer;
 
 // Selectores para acceder al estado desde los componentes
 export const selectAllProducts = (state: RootState) => state.product.products;
-export const selectFeaturedProducts = (state: RootState) => state.product.featuredProducts;
+export const selectFeaturedProducts = (state: RootState) =>
+  state.product.featuredProducts;
 export const getProductStatus = (state: RootState) => state.product.status;
 export const getProductError = (state: RootState) => state.product.error;

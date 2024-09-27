@@ -9,7 +9,6 @@ import {
 } from "@/redux/features/product/productSlice";
 import ProductCarousel from "../components/ecommerce/productCarousel";
 import ProductCard from "../components/ecommerce/productCard";
-import { selectIsAuthenticated } from "@/redux/authSelectors";
 import {
   BannerButton,
   BannerContainer,
@@ -18,23 +17,38 @@ import {
   HighlightedSection,
   LoadingSpinner,
   PageContainer,
+  ProductGridContainer,
   ProductList,
   SectionTitle,
   SpinnerContainer,
   Testimonial,
   TestimonialSection,
 } from "../components/ecommerce/styles/ecommerceStyles";
+import {
+  selectSearchTerm,
+  selectPriceRange,
+  selectSelectedCategory,
+  selectSelectedColor,
+  selectSelectedMarca,
+} from "@/redux/features/productsFilterSlice/FilterSlice";
+import Sidebar from "../components/ecommerce/Sidebar";
 
 const EcommercePage: React.FC = () => {
   const dispatch = useAppDispatch();
   const products = useAppSelector(selectAllProducts);
   const productStatus = useAppSelector(getProductStatus);
   const productError = useAppSelector(getProductError);
-  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+
+  // Obtener el estado de los filtros
+  const searchTerm = useAppSelector(selectSearchTerm);
+  const priceRange = useAppSelector(selectPriceRange);
+  const selectedCategory = useAppSelector(selectSelectedCategory);
+  const selectedColor = useAppSelector(selectSelectedColor);
+  const selectedMarca = useAppSelector(selectSelectedMarca);
 
   const [visibleProducts, setVisibleProducts] = useState<number>(6);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
-  const [hasMounted, setHasMounted] = useState(false); // Estado para verificar el montaje
+  const [hasMounted, setHasMounted] = useState(false);
 
   const carouselRef = useRef<HTMLDivElement>(null);
   const loaderRef = useRef<HTMLDivElement>(null);
@@ -94,6 +108,41 @@ const EcommercePage: React.FC = () => {
     return null;
   }
 
+  // Filtrar los productos en función de los filtros seleccionados
+  // Filtrar los productos en función de los filtros seleccionados
+  const filteredProducts = products.filter((product) => {
+    if (!product || !product.name) {
+      console.error("Producto indefinido o sin nombre:", product);
+      return false; // No incluir productos indefinidos o sin nombre
+    }
+
+    const matchesSearchTerm = product.name
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+
+    const matchesPriceRange =
+      product.price >= priceRange[0] && product.price <= priceRange[1];
+
+    const matchesCategory =
+      selectedCategory === "Todos" || product.category === selectedCategory;
+
+    const matchesColor =
+      !selectedColor ||
+      product.color?.toLowerCase() === selectedColor.toLowerCase();
+
+    const matchesMarca =
+      !selectedMarca ||
+      product.brand?.toLowerCase() === selectedMarca.toLowerCase();
+
+    return (
+      matchesSearchTerm &&
+      matchesPriceRange &&
+      matchesCategory &&
+      matchesColor &&
+      matchesMarca
+    );
+  });
+
   return (
     <>
       <PageContainer>
@@ -108,33 +157,51 @@ const EcommercePage: React.FC = () => {
         {/* Sección de Ofertas Destacadas */}
         <HighlightedSection ref={carouselRef}>
           <SectionTitle>Ofertas Destacadas</SectionTitle>
-          {productStatus === "succeeded" && products.length > 0 && (
-            <ProductCarousel
-              products={products.map((product) => ({
-                ...product,
-                isFeatured: product.isFeatured ?? false, // Asegura que isFeatured esté definido
-              }))}
-            />
+          {productStatus === "loading" ? (
+            <SpinnerContainer>
+              <LoadingSpinner />
+            </SpinnerContainer>
+          ) : (
+            productStatus === "succeeded" &&
+            products.length > 0 && (
+              <ProductCarousel
+                products={products.map((product) => ({
+                  ...product,
+                  isFeatured: product?.isFeatured ?? false, // Verificación de producto y propiedad
+                }))}
+              />
+            )
           )}
         </HighlightedSection>
 
-        {/* Listado de Productos de la Tienda */}
-        <SectionTitle>Productos de la Tienda</SectionTitle>
-        {productStatus === "loading" && <p>Cargando productos...</p>}
-        {productError && <p>Error: {productError}</p>}
-        <ProductList>
-          {products.slice(0, visibleProducts).map((product) => (
-            <ProductCard
-              key={product.id}
-              id={product.id}
-              name={product.name}
-              price={product.price}
-              imageFileName={product.imageFileName}
-              quantity={product.quantity}
-              description={product.description || "Sin descripción disponible"}
-            />
-          ))}
-        </ProductList>
+        {/* Contenedor de Productos con Sidebar */}
+        <Sidebar />
+        <ProductGridContainer>
+          <SectionTitle>Productos de la Tienda</SectionTitle>
+          {productStatus === "loading" && (
+            <SpinnerContainer>
+              <LoadingSpinner />
+            </SpinnerContainer>
+          )}
+          {productError && <p>Error: {productError}</p>}
+          <ProductList>
+            {filteredProducts.slice(0, visibleProducts).map((product) => (
+              <ProductCard
+                key={product.id}
+                id={product.id}
+                name={product.name}
+                price={product.price}
+                imageFileName={product.imageFileName}
+                quantity={product.quantity}
+                description={
+                  product.description || "Sin descripción disponible"
+                }
+                brand={product.brand || "Marca no disponible"}
+                color={product.color || "Color no disponible"}
+              />
+            ))}
+          </ProductList>
+        </ProductGridContainer>
 
         {/* Loader para el infinite scroll */}
         <div ref={loaderRef} style={{ textAlign: "center", margin: "2rem 0" }}>

@@ -8,7 +8,12 @@ const spin = keyframes`
     transform: rotate(360deg);
   }
 `;
-
+export const ProductGridContainer = styled.div`
+  width: 100%;
+  max-width: 1400px; /* Tamaño máximo en pantallas grandes */
+  margin: 0 auto; /* Centrar el contenedor */
+  padding: 0 1rem; /* Espacio alrededor en pantallas pequeñas */
+`;
 // Contenedor del spinner
 export const SpinnerContainer = styled.div`
   display: flex;

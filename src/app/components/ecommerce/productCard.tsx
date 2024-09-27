@@ -158,7 +158,73 @@ const AddToCartButton = styled.button`
     font-size: 0.9rem;
   }
 `;
+const ColorCircles = styled.div<{ color: string }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0.5rem auto;
 
+  div {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: ${({ color }) =>
+      /^#[0-9A-F]{6}$/i.test(color) || /^[a-z]+$/i.test(color)
+        ? color
+        : "#ccc"}; /* Validar si es un color válido, sino usar color predeterminado */
+    border: 2px solid white;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+
+    &:nth-child(1) {
+      z-index: 3;
+    }
+
+    &:nth-child(2) {
+      margin-left: -10px;
+      z-index: 2;
+    }
+
+    &:nth-child(3) {
+      margin-left: -10px;
+      z-index: 1;
+    }
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+`;
+const OutOfStockOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.7); /* Blanco transparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  pointer-events: none; /* Para que no interfiera con el click en la tarjeta */
+`;
+
+const OutOfStockText = styled.span`
+  color: red;
+  font-size: 2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  transform: rotate(-20deg); /* Texto en diagonal */
+`;
+const ProductBrand = styled.p`
+  font-size: 1rem;
+  font-weight: bold; /* Marca en negrita */
+  color: #fff;
+  margin-top: 0.5rem;
+  text-transform: capitalize;
+  text-align: center;
+`;
+// Componente del ProductCard
 interface ProductCardProps {
   id: number;
   name: string;
@@ -168,10 +234,21 @@ interface ProductCardProps {
   quantity: number;
   description: string;
   discount?: number;
-  createdAt?: string;  
-  updatedAt?: string;  
+  brand?: string;
+  color?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
-
+const colorMapping: Record<string, string> = {
+  Blanco: "#FFFFFF", // Blanco -> White
+  Negro: "#000000", // Negro -> Black
+  Nude: "#F5CBB0", // Nude -> Beige-like color
+  Rojo: "#FF0000", // Rojo -> Red
+  Rosa: "#FFC0CB", // Rosa -> Pink
+  Azul: "#0000FF", // Azul -> Blue
+  Marron: "#8B4513", // Marron -> Brown
+  "": "#D3D3D3", // Default color for empty selection
+};
 const ProductCard: React.FC<ProductCardProps> = ({
   id,
   name,
@@ -181,6 +258,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   quantity,
   description,
   discount,
+  brand = "Marca no disponible",
+  color = "Color no disponible",
   createdAt = new Date().toISOString(),
   updatedAt = new Date().toISOString(),
 }) => {
@@ -194,14 +273,29 @@ const ProductCard: React.FC<ProductCardProps> = ({
       imageFileName,
       quantity,
       description,
+      brand,
+      color,
       createdAt,
       updatedAt,
     };
     dispatch(addToCart(product));
   };
 
+  // Log para verificar si el color es recibido correctamente
+  console.log(`Producto: ${name}, Color: ${color}`);
+
+  // Usar el color mapeado
+  const mappedColor = colorMapping[color] || "#D3D3D3"; // Color por defecto si no se encuentra
+
   return (
     <CardContainer>
+      {/* Mostrar el overlay si no hay stock */}
+      {quantity === 0 && (
+        <OutOfStockOverlay>
+          <OutOfStockText>Sin stock</OutOfStockText>
+        </OutOfStockOverlay>
+      )}
+
       {discount && <DiscountBadge>{discount}% OFF</DiscountBadge>}
       <Link href={`/products/${id}`} passHref>
         <div>
@@ -213,17 +307,27 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </ImageContainer>
           <ProductName>{name}</ProductName>
           <ProductPrice>
-            {oldPrice && <OldPrice>${oldPrice}</OldPrice>}
-            ${price}
+            {oldPrice && <OldPrice>${oldPrice}</OldPrice>}${price}
           </ProductPrice>
           <ProductDescription>{description.slice(0, 60)}...</ProductDescription>
+
+          {/* Mostrar Marca en negrita */}
+          <ProductBrand>{brand}</ProductBrand>
+
+          {/* ColorCircles con el color mapeado */}
+          {color && color !== "Color no disponible" && (
+            <ColorCircles color={mappedColor}>
+              <div />
+              <div />
+              <div />
+            </ColorCircles>
+          )}
         </div>
       </Link>
-      <AddToCartButton onClick={handleAddToCart}>
+      <AddToCartButton onClick={handleAddToCart} disabled={quantity === 0}>
         Agregar al carrito
       </AddToCartButton>
     </CardContainer>
   );
 };
-
 export default ProductCard;
