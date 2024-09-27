@@ -124,11 +124,8 @@ const isMobileDevice = () => {
 };
 const CombinedFilterComponent: React.FC = () => {
   const classes = useStyles();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isSelectMenuOpen, setIsSelectMenuOpen] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [forceShowScrollbar, setForceShowScrollbar] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isSidebarControlledByButton, setIsSidebarControlledByButton] =
     useState(false);
 
@@ -141,7 +138,6 @@ const CombinedFilterComponent: React.FC = () => {
   };
   const dispatch = useDispatch();
   const sidebarRef = useRef<HTMLDivElement>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [scrollY, setScrollY] = useState(0);
   const [isButtonVisible, setIsButtonVisible] = useState(false);
 
@@ -150,7 +146,6 @@ const CombinedFilterComponent: React.FC = () => {
   const [isSticky, setIsSticky] = useState(false);
   const [isExpanded, setIsExpanded] = useState(!isMobile);
   const [isFilterOpen, setIsFilterOpen] = useState(!isMobile);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [hasScrolled, setHasScrolled] = useState(false);
   const [menuPortalTarget, setMenuPortalTarget] = useState<HTMLElement | null>(
     null
